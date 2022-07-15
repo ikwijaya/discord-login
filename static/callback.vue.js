@@ -54,10 +54,19 @@ const Callback = {
                 const rt = this.$route.query
                 const me = {
                     token_type: rt.token_type,
-                    access_token: rt.access_token
+                    access_token: rt.access_token,
+                    refresh_token: rt.refresh_token
                 }
                 const qs = await jsonToQs(me)
                 await this.getMe(qs).catch(e => { console.log(e) })
+
+                //// set localstorage
+                for (const key in me) {
+                    if (Object.hasOwnProperty.call(me, key)) {
+                        const element = me[key];
+                        window.localStorage.setItem(this.prefix+key, element);
+                    }
+                }
             } catch (error) {
                 console.log(`error => `,error)
             }
