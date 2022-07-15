@@ -1,0 +1,78 @@
+<html>
+    <head>
+        <title>FuzzyFighters - Discord Login</title>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.0"></script>
+        <script src="https://unpkg.com/vue-router@2.0.0"></script>
+
+        <link
+            rel="stylesheet"
+            href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+            />
+        <link rel="stylesheet" href="./style.css">
+    </head>
+    <body>
+        <div class="wrapper">
+            <div id="app" class="container" style="padding-top: 2em;">
+                <div class="text-center">
+                    <router-view v-on:auth-verified="setAuthStatus"></router-view>
+                </div>
+            </div>
+          </div>
+
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script src="./callback.vue.js"></script>
+        <script>
+            Vue.component("Callback", Callback);
+
+            const routes = [
+                {
+                    path: "/",
+                    component: Callback
+                }
+            ];
+
+            const router = new VueRouter({
+                routes: routes,
+                mode: "history",
+                base: "/",
+            });
+
+            var app = new Vue({
+                el: "#app",
+                router: router,
+                created(){
+                    axios.interceptors.request.use((config) => {
+                        this.loading = true;
+                        return config;
+                    }, (error) => {
+                        this.loading = false;
+                        return Promise.reject(error);
+                    });
+
+                    axios.interceptors.response.use((response) => {
+                        this.loading = false;
+                        return response;
+                    }, (error) => {
+                        this.loading = false;
+                        return Promise.reject(error);
+                    });
+                },
+                data() {
+                    return {
+                        loading: false,
+                        prefix: 'ff_',
+                        baseurl: {
+                            me: '/v1/@me',
+                            avatar: 'https://cdn.discordapp.com/avatars/'
+                        }
+                    };
+                },
+                methods: {
+                    setAuthStatus(val) {
+                        console.log(`hitted auth, ${val}`)
+                    },
+                },
+            });
+        </script>
+    </body>
+</html>
